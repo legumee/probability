@@ -94,40 +94,51 @@ def maximize_letters(p_letter, words):
 # PART 2:
 # from list of words, find the singular word that maximizes the probability that each letter
 # appears in the right order in the true wordle answer, using Bayesian logic
-def maximize_letters_given_order(words, p_letter, answers_left):
+def maximize_order_given_letters(words, p_letter, answers_left):
     p_letter_given_position = []
 
     # for each letter position, finds a dictionary of the probability of each letter given position
     for i in range(5):
         p_letter_given_position.append(get_p_letter_given_position(i, answers_left))
 
-    max = 0
+    max_p = 0
     max_guess = ''
     for word in words:
         p_guess = 1  # cumulative probability
         for i in range(5):
             if word[i] in p_letter_given_position[i]:
-                p_guess *= p_letter_given_position[i][word[i]] * p_letter[word[i]]  # Bayes used here
+                p_guess *= ((p_letter_given_position[i][word[i]] * 0.2) / p_letter[word[i]])  # Bayes used here
             else:  # if letter doesn't have a frequency in that position, multiply by extremely small number
-                p_guess *= 0.000001
-        if p_guess > max:  # update most optimal word if p_guess exceeds previous max
-            max = p_guess
+                p_guess *= 0.0000000000001
+        if p_guess > max_p:  # update most optimal word if p_guess exceeds previous max
+            max_p = p_guess
             max_guess = word
     return max_guess
 
+
 def get_best_wordle():
-    answers_left = get_answers_left()
+    wordle_history = open('PastWordles.txt')
+
+    wordle_history = wordle_history.read()
+    wordle_history = wordle_history.splitlines()
+
+    # puts all past wordles into a list
+    past_answers = []
+    for wordle in wordle_history:
+        wordle = wordle.split(' ')
+        past_answers.append(wordle[-1].lower())
+
     allowed_guesses = open('wordle-nyt-allowed-guesses.txt')
 
-    p_letter = get_p_letter(answers_left)
+    p_letter = get_p_letter(past_answers)
 
     words = maximize_letters(p_letter, allowed_guesses)
-    print("Words that optimize letters:" )
+    print("Words that optimize letters:")
     print(words)
 
-
-    max_guess = maximize_letters_given_order(words, p_letter, answers_left)
+    max_guess = maximize_order_given_letters(words, p_letter, past_answers)
     print("Optimal first word: " + max_guess)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
