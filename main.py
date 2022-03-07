@@ -1,31 +1,5 @@
 WORDLE_LEN = 5
 
-
-# returns a list of the answers (from the Wordle source file of all answers) that haven't been
-# used yet (up to March 6th)
-def get_answers_left():
-    wordle_history = open('PastWordles.txt')
-    answer_data = open('wordle-nyt-answers-alphabetical.txt')
-
-    wordle_history = wordle_history.read()
-    wordle_history = wordle_history.splitlines()
-
-    # puts all past wordles into a list
-    past_answers = []
-    for wordle in wordle_history:
-        wordle = wordle.split(' ')
-        past_answers.append(wordle[-1].lower())
-
-    # puts all wordles not found in past into a list
-    answers_left = []
-    for answer in answer_data:
-        answer = answer.strip()
-        if answer not in past_answers:
-            answers_left.append(answer)
-
-    return answers_left
-
-
 # given a list of words, returns a dictionary of the probabilities for each letter to appear in a
 # given word from the word list
 def get_p_letter(words):  # probability that each letter occurs in a 5-letter word
